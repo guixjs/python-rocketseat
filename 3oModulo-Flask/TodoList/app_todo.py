@@ -6,6 +6,7 @@ app = Flask(__name__)
 
 tasks = []
 task_id_control = 1
+
 @app.route('/task',methods=['POST'])
 def create_task():
   global task_id_control
@@ -14,7 +15,8 @@ def create_task():
   task_id_control += 1
   tasks.append(new_task)
   return jsonify({
-    "mensagem":"Nova tarefa criada com sucesso"
+    "mensagem":"Nova tarefa criada com sucesso",
+    "id":new_task.id
   })
   
 
@@ -32,14 +34,15 @@ def get_tasks():
 
 
 # em python os paths params são entre "<>", podendo converter colocando tipo:variavel (sem o tipo é sempre string)
-@app.route("/tasks/<int:id>", methods=['GET'])
+@app.route("/task/<int:id>", methods=['GET'])
 def get_one_task(id): # o parametro da rota é passado como parametro da funcao
   for t in tasks:
     if t.id == id:
       return jsonify(t.to_dict())
-    return jsonify({
-      "mensagem":"Não foi possível encontrar a task"
-    }),404
+    
+  return jsonify({
+    "mensagem":"Não foi possível encontrar a task"
+  }),404
 
 
 @app.route("/task/<int:id>", methods=['PUT'])
@@ -65,7 +68,7 @@ def update_task(id):
   })
 
 
-@app.route("/tasks/<int:id>",methods=['DELETE'])
+@app.route("/task/<int:id>",methods=['DELETE'])
 def delete_task(id):
   task = None
   for t in tasks:
