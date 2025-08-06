@@ -25,8 +25,63 @@ def get_tasks():
     task_list.append(t.to_dict())
   response = {
     "tasks":task_list,
-    "total_task": 0
+    "total_task": len(task_list)
   }
   return jsonify(response)
+
+
+
+# em python os paths params são entre "<>", podendo converter colocando tipo:variavel (sem o tipo é sempre string)
+@app.route("/tasks/<int:id>", methods=['GET'])
+def get_one_task(id): # o parametro da rota é passado como parametro da funcao
+  for t in tasks:
+    if t.id == id:
+      return jsonify(t.to_dict())
+    return jsonify({
+      "mensagem":"Não foi possível encontrar a task"
+    }),404
+
+
+@app.route("/task/<int:id>", methods=['PUT'])
+def update_task(id):
+  task = None
+  data = request.get_json()
+
+  for t in tasks:
+    if t.id == id:
+      task = t
+
+  if task == None:
+    return jsonify({
+      "mensagem":"Não foi possível encontrar a task"
+    }),404
+
+  task.title = data['title']
+  task.description = data['description']
+  task.completed = data['completed']
+
+  return jsonify({
+    "mensagem":"Tarefa atualizada com sucesso"
+  })
+
+
+@app.route("/tasks/<int:id>",methods=['DELETE'])
+def delete_task(id):
+  task = None
+  for t in tasks:
+    if t.id == id:
+      task = t
+      break
+
+  if task == None:    
+    return jsonify({
+      "mensagem":"Não foi possível encontrar a task"
+    }),404
+
+  tasks.remove(task)
+  return jsonify({
+    "mensagem":"Tarefa deletada com sucesso"
+  })
+
 if __name__ == "__main__":
   app.run(debug=True)
