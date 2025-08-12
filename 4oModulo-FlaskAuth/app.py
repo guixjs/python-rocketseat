@@ -46,7 +46,7 @@ def login():
 
 
 @login_required # tipo um PreAuthorization no spring
-@app.route("/logout", method=['GET'])
+@app.route("/logout", methods=['GET'])
 def logout():
   logout_user()
   return jsonify({
@@ -69,6 +69,62 @@ def create_user():
   return jsonify({
     "mensagem":"Credenciais inválidas"
   }), 400
+
+
+
+@app.route("/user/<int:id>", methods=['GET'])
+@login_required
+def read_user(id):
+  user = User.query.get(id)
+
+  if user:
+    return jsonify({
+    "username": user.username
+  })
+  
+
+  return jsonify({
+    "mensagem":"Usuário não encontrado"
+  }), 404
+
+
+@app.route("/user/<int:id>", methods=['PUT'])
+@login_required
+def update_user(id):
+  user = User.query.get(id)
+  data = request.json
+  if user and data.get("password"):
+    user.password = data.get("password")
+    db.session.commit()
+    return jsonify({
+    "mensagem": f"O usuário {user.username} foi atualizado com sucesso"
+  })
+  
+
+  return jsonify({
+    "mensagem":"Usuário não encontrado"
+  }), 404
+
+
+@app.route("/user/<int:id>", methods=['DELETE'])
+@login_required
+def read_user(id):
+  user = User.query.get(id)
+
+  if user:
+    if id == current_user.id:
+      logout()
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({
+    "username": f"Usuário {user.id} deletado com sucesso"
+  })
+  
+
+  return jsonify({
+    "mensagem":"Usuário não deletado"
+  }), 404
+
 if __name__ == "__main__":
   app.run(debug=True)
   
